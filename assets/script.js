@@ -243,7 +243,7 @@ function finishProcessing() {
         
         // Calculate total
         const tagihanValue = data.tagihan || 0;
-        const totalValue = tagihanValue + 4000;
+        const totalValue = tagihanValue + 4000; // set disini sebagai admin bank, set default 4000
         const tagihanFormatted = tagihanValue > 0 ? formatCurrency(tagihanValue) : 'Data tidak tersedia';
         const totalFormatted = totalValue > 4000 ? formatCurrency(totalValue) : 'Data tidak tersedia';
         
@@ -410,4 +410,5 @@ function finishProcessing() {
         div.textContent = text;
         return div.innerHTML;
     }
+
 });

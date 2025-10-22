@@ -16,12 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['idpel'])) {
     $type = $_POST['type'] ?? 'postpaid';
 
     // Build URL
-    $url = BASE_URL . urlencode($idpel) . 
-          ($type === 'prepaid' ? '/token_pln' : '/postpaid');
+    $url = BASE_URL . urlencode($idpel) .
+        ($type === 'prepaid' ? '/token_pln' : '/postpaid');
 
     // Optimized cURL untuk HTTP/2
     $ch = curl_init();
-    
+
     $curlOptions = [
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
@@ -40,9 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['idpel'])) {
             "Connection: keep-alive"
         ]
     ];
-    
+
     curl_setopt_array($ch, $curlOptions);
-    
+
     $response = curl_exec($ch);
     $err = curl_error($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['idpel'])) {
         echo json_encode(['success' => false, 'error' => "Connection Error: $err"]);
         exit;
     }
-    
+
     // Handle HTTP errors
     if ($httpCode != 200) {
         echo json_encode(['success' => false, 'error' => "HTTP Error $httpCode"]);
@@ -62,33 +62,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['idpel'])) {
 
     // Parse JSON response
     $json = json_decode($response, true);
-    
+
     if (json_last_error() !== JSON_ERROR_NONE) {
         echo json_encode(['success' => false, 'error' => 'Invalid JSON response from API']);
         exit;
     }
-    
+
     // Handle API response based on success status
     if (isset($json['success']) && $json['success'] === false) {
         // API mengembalikan error
         $errorData = $json['data'] ?? [];
         $errorMessage = $errorData['message'] ?? 'Unknown error from API';
         $errorCode = $errorData['code'] ?? 0;
-        
+
         echo json_encode([
-            'success' => false, 
+            'success' => false,
             'error' => $errorMessage,
             'code' => $errorCode
         ]);
         exit;
     }
-    
+
     // Handle successful response
     if (isset($json['success']) && $json['success'] === true) {
         // Process data based on type
         if ($type === 'prepaid') {
             $data = $json['data'] ?? [];
-            
+
             echo json_encode([
                 'success' => true,
                 'meter_number' => $data['meter_number'] ?? 'Data tidak tersedia',
@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['idpel'])) {
         } else {
             $data = $json['data'] ?? [];
             $billDetail = $data['bill_detail'][0] ?? [];
-            
+
             echo json_encode([
                 'success' => true,
                 'nama' => $data['subscriber_name'] ?? 'Data tidak tersedia',
